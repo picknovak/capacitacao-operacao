@@ -1,0 +1,8 @@
+# Inventarios e saidas locais
+inventarios/*.txt
+coleta_inventario*.txt
+*.log
+
+# Artefatos temporarios
+*.tmp
+*.bak
