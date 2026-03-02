@@ -21,6 +21,7 @@ Repositorio para capacitar e padronizar a operacao do ambiente, com foco em esta
 ## Estrutura
 
 - `docs/`: padroes e contexto do ambiente
+- `docs/wiki/`: wiki/manual navegavel para onboarding e operacao
 - `openproject/`: runbooks, seguranca e incidentes do OpenProject
 - `postgresql/`: operacao do PostgreSQL do host (separado do OpenProject)
 - `checklists/`: rotinas recorrentes
@@ -37,8 +38,7 @@ Repositorio para capacitar e padronizar a operacao do ambiente, com foco em esta
 
 ## Proximo uso recomendado
 
-1. Preencher `openproject/arquitetura.md` com volumes e compose real.
-2. Validar e documentar `op_backup.sh` em `openproject/operacao/backup-restore.md`.
+1. Comecar por `docs/wiki/Home.md`.
+2. Preencher `openproject/arquitetura.md` com volumes e compose real.
 3. Testar restore em ambiente isolado e registrar evidencias.
 4. Iniciar rotina usando `checklists/daily-openproject.md`.
-
