@@ -22,6 +22,7 @@ Repositorio para capacitar e padronizar a operacao do ambiente, com foco em esta
 
 - `docs/`: padroes e contexto do ambiente
 - `docs/wiki/`: wiki/manual navegavel para onboarding e operacao
+- `servidor/`: operacao geral do servidor (auditoria, backup, synology, etc.)
 - `openproject/`: runbooks, seguranca e incidentes do OpenProject
 - `postgresql/`: operacao do PostgreSQL do host (separado do OpenProject)
 - `checklists/`: rotinas recorrentes
@@ -35,10 +36,12 @@ Repositorio para capacitar e padronizar a operacao do ambiente, com foco em esta
 - Antes de executar mudanca em producao, registrar plano e rollback.
 - OpenProject e PostgreSQL do host devem ser tratados como componentes separados.
 - Priorizar procedimentos reproduziveis (`bash`, `systemd`, `docker`) com comandos documentados.
+- Evitar manter repositorio paralelo para as mesmas rotinas de servidor.
 
 ## Proximo uso recomendado
 
 1. Comecar por `docs/wiki/Home.md`.
-2. Preencher `openproject/arquitetura.md` com volumes e compose real.
-3. Testar restore em ambiente isolado e registrar evidencias.
-4. Iniciar rotina usando `checklists/daily-openproject.md`.
+2. Revisar `servidor/README.md` e `docs/wiki/Servidor-Manual.md`.
+3. Preencher `openproject/arquitetura.md` com volumes e compose real.
+4. Testar restore em ambiente isolado e registrar evidencias.
+5. Iniciar rotina usando `checklists/daily-openproject.md`.

@@ -2,7 +2,14 @@
 inventarios/*.txt
 coleta_inventario*.txt
 *.log
+.DS_Store
 
 # Artefatos temporarios
 *.tmp
 *.bak
+
+# Artefatos de operacao do servidor (nao versionar)
+servidor/artefatos/*
+servidor/relatorios/*
+servidor/**/*.tar.gz
+servidor/**/*.sha256

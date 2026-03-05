@@ -27,7 +27,7 @@ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
 systemctl status op-backup.timer --no-pager
 systemctl status op-backup.service --no-pager
 journalctl -u op-backup.service -n 50 --no-pager
-./scripts/openproject_daily_health.sh
+./servidor/scripts/openproject_daily_health.sh
 ```
 
 ## O que fazer antes de mudar qualquer coisa
@@ -36,4 +36,3 @@ journalctl -u op-backup.service -n 50 --no-pager
 2. Confirmar backup recente.
 3. Registrar plano e rollback.
 4. Fazer commit da documentacao antes e depois da mudanca.
-

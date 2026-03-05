@@ -20,7 +20,7 @@
 
 ## Rotina diaria
 
-1. Rodar `scripts/openproject_daily_health.sh`.
+1. Rodar `servidor/scripts/openproject_daily_health.sh`.
 2. Verificar status do backup.
 3. Verificar logs recentes se houver anomalia.
 4. Registrar qualquer incidente.
@@ -46,4 +46,3 @@ Documentos de apoio:
 ## Risco principal
 
 Misturar operacao do banco do OpenProject com o PostgreSQL do host.
-

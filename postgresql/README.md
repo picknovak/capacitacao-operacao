@@ -17,3 +17,8 @@ Este modulo NAO e o banco do OpenProject (que esta em container `openproject-db`
 - tuning basico
 - verificacao de extensoes PostGIS
 
+## Conteudo LabGIS
+
+- `postgresql/labgis/README.md`
+- `postgresql/labgis/docs/`
+- `postgresql/labgis/sql/`

@@ -1,0 +1,169 @@
+MANUAL DE ACESSO AO BD POSTGRES / POSTGIS (via SSH Tunnel)
+Projeto: ambiente inspecionado em relatorio local
+Data de referencia do ambiente: 2026-02-18 (relatorio/inspect_report_20260218_0631.txt)
+
+1. CONTEXTO OBSERVADO NO AMBIENTE
+
+- Existe usuario de tunel: tunnel_externo
+- SSH (porta 22) liberado
+- PostgreSQL no host ouvindo apenas em 127.0.0.1:5432
+- Container Docker identificado: openproject-db (postgres:17)
+- Aplicacao OpenProject usa banco "openproject"
+- Exemplo de DATABASE_URL observado:
+  postgres://openproject:TROQUE_ESSA_SENHA@db:5432/openproject
+
+Observacao:
+- Como o Postgres esta local (127.0.0.1) / rede interna Docker, o acesso externo recomendado e via SSH tunnel.
+- Nao exponha a porta 5432 diretamente na internet.
+
+2. PRE-REQUISITOS (USUARIO EXTERNO)
+
+- Cliente SSH instalado (Linux/macOS ja vem; no Windows usar PowerShell/OpenSSH)
+- psql (opcional, para acesso por linha de comando)
+- pgAdmin/DBeaver (opcional, acesso grafico)
+
+3. GERAR CHAVE SSH (NO COMPUTADOR DO USUARIO EXTERNO)
+
+No computador do usuario externo:
+
+  ssh-keygen -t ed25519 -C "nome-ou-email-do-usuario"
+
+Arquivos gerados (padrao):
+- ~/.ssh/id_ed25519        (chave privada - NAO compartilhar)
+- ~/.ssh/id_ed25519.pub    (chave publica - enviar para o administrador)
+
+4. CADASTRAR CHAVE PUBLICA NO SERVIDOR (ADMIN)
+
+Adicionar a chave publica do usuario no arquivo:
+
+  /home/tunnel_externo/.ssh/authorized_keys
+
+Permissoes recomendadas:
+
+  sudo mkdir -p /home/tunnel_externo/.ssh
+  sudo chmod 700 /home/tunnel_externo/.ssh
+  sudo chown -R tunnel_externo:tunnel_externo /home/tunnel_externo/.ssh
+  sudo chmod 600 /home/tunnel_externo/.ssh/authorized_keys
+
+Opcional (recomendado) - restringir chave para tunel apenas:
+Adicionar a chave com opcoes no inicio da linha:
+
+  restrict,port-forwarding,permitopen="127.0.0.1:5432" ssh-ed25519 AAAA... usuario@maquina
+
+5. ABRIR O TUNNEL SSH PARA O POSTGRES (USUARIO EXTERNO)
+
+5.1. TUNEL BASICO (PORTA LOCAL 5432 -> POSTGRES DO SERVIDOR 127.0.0.1:5432)
+
+  ssh -N -L 5432:127.0.0.1:5432 tunnel_externo@SEU_SERVIDOR
+
+Explicacao rapida:
+- -N: nao abre shell interativo
+- -L 5432:127.0.0.1:5432: porta local 5432 sera encaminhada para o Postgres no servidor
+
+Se a porta 5432 estiver ocupada no computador do usuario, usar outra porta local (ex.: 15432):
+
+  ssh -N -L 15432:127.0.0.1:5432 tunnel_externo@SEU_SERVIDOR
+
+Neste caso, as ferramentas locais devem conectar em localhost:15432.
+
+5.2. TUNEL EM SEGUNDO PLANO (OPCIONAL)
+
+  ssh -fN -L 15432:127.0.0.1:5432 tunnel_externo@SEU_SERVIDOR
+
+Para encerrar, localizar o processo SSH e finalizar.
+
+6. ACESSO VIA PSQL (LINHA DE COMANDO)
+
+Exemplo usando porta local 15432:
+
+  psql -h 127.0.0.1 -p 15432 -U openproject -d openproject
+
+Senha:
+- use a senha real do banco do usuario "openproject" (nao esta exposta neste manual)
+
+Se preferir evitar prompt interativo (temporariamente):
+
+  PGPASSWORD='SENHA_AQUI' psql -h 127.0.0.1 -p 15432 -U openproject -d openproject
+
+7. TESTES RAPIDOS (POSTGRES E POSTGIS)
+
+Depois de conectar no psql:
+
+  SELECT version();
+  SELECT current_database();
+  SELECT current_user;
+
+Verificar se PostGIS esta habilitado:
+
+  SELECT PostGIS_full_version();
+
+Se der erro "function postgis_full_version() does not exist", a extensao pode nao estar habilitada nesse banco.
+Verifique as extensoes instaladas:
+
+  \dx
+
+8. ACESSO VIA FERRAMENTA GRAFICA (PGADMIN / DBeaver)
+
+Com o tunnel ativo, configurar conexao assim:
+
+- Host: 127.0.0.1
+- Porta: 15432   (ou 5432, se usou essa porta local)
+- Database: openproject
+- Usuario: openproject
+- Senha: <senha real do banco>
+- SSL: desabilitado (normalmente desnecessario quando usando SSH tunnel local)
+
+Importante:
+- O SSH tunnel deve permanecer aberto durante o uso da ferramenta grafica.
+
+9. TROUBLESHOOTING (ERROS COMUNS)
+
+9.1. "Permission denied (publickey)"
+- A chave publica nao foi adicionada corretamente ao usuario tunnel_externo
+- Permissoes da pasta ~/.ssh/authorized_keys incorretas
+- Usuario tentou conectar com outra chave
+
+Teste com verbosidade:
+
+  ssh -v -N -L 15432:127.0.0.1:5432 tunnel_externo@SEU_SERVIDOR
+
+9.2. "Connection refused" no psql em localhost:15432
+- Tunnel SSH nao esta aberto
+- Porta local usada no psql nao corresponde a porta configurada no tunnel
+- Postgres no servidor nao esta ouvindo em 127.0.0.1:5432
+
+9.3. "password authentication failed for user openproject"
+- Usuario/senha do banco incorretos
+- A senha da aplicacao foi trocada e o manual nao foi atualizado
+
+10. COMANDOS DE DIAGNOSTICO (ADMIN NO SERVIDOR)
+
+Verificar Postgres no host:
+
+  ss -ltnp | grep 5432
+
+Verificar container:
+
+  docker ps | grep openproject-db
+
+Testar acesso local ao banco no container (se necessario):
+
+  docker exec -it openproject-db psql -U postgres -c "SELECT version();"
+
+11. BOAS PRATICAS
+
+- Uma chave SSH por usuario (nao compartilhar chave)
+- Revogar acesso removendo a linha da chave em authorized_keys
+- Restringir o usuario tunnel_externo para port-forwarding apenas
+- Nao expor 5432 na internet
+- Registrar quem recebeu acesso e qual chave foi cadastrada
+
+12. CHECKLIST RAPIDO (USUARIO EXTERNO)
+
+1. Gerar chave com ssh-keygen
+2. Enviar arquivo .pub ao administrador
+3. Receber confirmacao de cadastro da chave
+4. Abrir tunnel SSH (porta local 15432 -> servidor 127.0.0.1:5432)
+5. Conectar com psql/pgAdmin em 127.0.0.1:15432
+6. Validar com SELECT version(); e SELECT PostGIS_full_version();
+
