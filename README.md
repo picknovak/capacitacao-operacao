@@ -45,3 +45,18 @@ Repositorio para capacitar e padronizar a operacao do ambiente, com foco em esta
 3. Preencher `openproject/arquitetura.md` com volumes e compose real.
 4. Testar restore em ambiente isolado e registrar evidencias.
 5. Iniciar rotina usando `checklists/daily-openproject.md`.
+
+## Coleta de chave SSH (tunnel_externo)
+
+Para receber chaves publicas de usuarios de forma padronizada, use os scripts em:
+
+- `scripts/coleta_chave_ssh/coleta_chave_ssh_windows.bat`
+- `scripts/coleta_chave_ssh/coleta_chave_ssh_macos.sh`
+- `scripts/coleta_chave_ssh/coleta_chave_ssh_linux.sh`
+- `scripts/coleta_chave_ssh/README_coleta_chave_ssh.md`
+
+Comportamento padrao:
+
+- gera chave `ed25519` no `~/.ssh` do usuario;
+- cria `chave_publica_ssh.txt` na mesma pasta onde o script foi executado;
+- o usuario deve enviar somente esse `.txt`.
